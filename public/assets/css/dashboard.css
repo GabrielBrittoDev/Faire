@@ -1,0 +1,91 @@
+.myWorkContent{
+    width: auto;
+    height:99vh;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+}
+.modal_curtain {
+    position: absolute;
+    z-index: 100;
+    width: 100%;
+    height: 100vh;
+    padding: 40px 0px;
+    display: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: 0.2s;
+}
+
+.modal_curtain_show {
+    opacity: 1;
+}
+
+.modal {
+    min-width: 300px;
+    max-width: 500px;
+    margin: 0px auto;
+    background-color: #fff;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.20);
+}
+
+.modal_header {
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal_title {
+    font-size: 1.4em;
+    color: #444;
+}
+
+.modal_close {
+    padding: 0px;
+    border: none;
+    outline: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.modal_content {
+    width: 100%;
+    padding: 0px 20px;
+}
+
+.modal_footer {
+    width: 100%;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+@media screen and (max-width: 720px) {
+    .modal_curtain {
+        padding: 0px;
+    }
+
+    .modal {
+        width: 90%;
+        margin: 20px auto;
+    }
+}
+
+.todo_list{
+    width: 600px;
+}
+.todo{
+    margin: 4px 10px 5px 0;
+    background-color: transparent;
+    border: 1px solid #ccc;
+    outline: hidden;
+    padding: 10px 0 10px 0;
+    border-radius: 10px;
+    width: 100%;
+}

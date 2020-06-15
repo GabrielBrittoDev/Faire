@@ -1,0 +1,39 @@
+{% extends "@template/template.html" %}
+
+{% block title %}Posts{% endblock %}
+
+{% block body %}
+
+<div class="container">
+    <h1 class="text-center">Login</h1>
+
+
+
+    {% if error is defined %}
+    <ul>
+        <div class="alert alert-danger alert-dismissible fade show">
+            <strong>Erro!</strong> {{error}}
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+        </div>
+    </ul>
+    {% endif %}
+
+    <div class="p-5">
+        <form action="/auth/login" method="post">
+            <div class="form-group">
+                <label for="email">E-mail: </label>
+                <input class="form-control" type="email" name="email" id="email" required placeholder="seu@email.com" value="{% if user.name is defined %} {{user.email}} {% endif %}">
+            </div>
+            <div class="form-group has-error has-feedback">
+                <label for="password">Senha: </label>
+                <input class="form-control " type="password" name="password" id="password" required  placeholder="Senha">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Logar</button>
+        </form>
+
+    </div>
+</div>
+
+
+{% endblock %}

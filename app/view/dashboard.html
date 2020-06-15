@@ -1,0 +1,231 @@
+{% extends "@template/template.html" %}
+
+{% block title %}Dashboard{% endblock %}
+{% block assets %}    <link rel="stylesheet" type="text/css" media="screen" href="/assets/css/dashboard.css" />{% endblock %}
+
+{% block body %}
+
+    <div class="text-center">
+        <h1><strong>+</strong> Adicionar Lista</h1>
+        <input type="hidden" id="user_id" value="{{user.id}}">
+        <label for="add_list_title">Lista:</label>
+        <input onkeypress="addTodoList(event)" type="text" id="add_list_title" name="add_list_title">
+    </div>
+
+<div class="myWorkContent d-flex" id="todo_lists">
+{% for todoList in todoLists %}
+    <div class="mx-5 p-5 todo_list" id="todo_list_{{todoList.id}}">
+        <header class="d-flex">
+            <h4>{{todoList.title}}</h4>
+            <button onclick="deleteTodoList(this)" class="btn btn-danger ml-2">
+                <i class="fa fa-trash"></i>
+            </button>
+        </header>
+        <div class="todo-card">
+            {% for todo in todoList.todos %}
+            <input type="hidden" value="{{todo.id}}">
+            <button class="todo d-block" onclick="openModalUpdate(this)">{{todo.title}}</button>
+            {% endfor %}
+        </div>
+        <button data-modal="modal" onclick="openModalCreate(this)" class="btn">+</button>
+    </div>
+{% endfor %}
+</div>
+
+<div id="modal" class="modal">
+    <input type="hidden" id="todo_list_id" value="">
+    <div class="modal_header">
+        <h2 class="modal_title">
+            Detalhes da tarefa
+        </h2>
+
+        <button data-modal-close="modal" class="modal_close">
+            X
+        </button>
+    </div>
+    <div class="modal_content">
+        <input type="hidden" id="todo_id" value="">
+        <div class="form-group">
+            <label for="todo_title">Titulo</label>
+            <input type="text" id="todo_title" class="form-input">
+            <label for="todo_done">Feito</label>
+            <input type="checkbox" id="todo_done">
+        </div>
+        <div class="form-group">
+            <label for="todo_title">Descrição</label>
+            <textarea type="text" id="todo_description" class="form-input"></textarea>
+        </div>
+    </div>
+    <div class="modal_footer">
+        <button data-modal-close="modal" onclick="deleteTodo()" class="btn btn-danger">
+            <i class="fa fa-trash"></i>
+        </button>
+        <div>
+        <button data-modal-close="modal" class="btn">
+            Cancelar
+        </button>
+        <button data-modal-close="modal" onclick="addTodo()" class="btn btn-primary">
+            Salvar
+        </button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    const modal_close_btn = document.querySelectorAll('[data-modal-close="modal"]');
+    const modal_curtain = document.querySelector("#modal");
+    const modalTodoTitle = document.getElementById('todo_title');
+    const modalTodoDescription = document.getElementById('todo_description');
+    const modalTodoDone = document.getElementById('todo_done');
+    const modalTodoListId = document.getElementById('todo_list_id');
+    const modalTodoId = document.getElementById('todo_id');
+    const userId = document.getElementById('user_id').value;
+    const closeModal = () => {
+        for (let i = 0; i < modal_close_btn.length; i++) {
+            modal_close_btn[i].addEventListener("click", closeModal);
+        }
+
+        function closeModal() {
+            modal_curtain.classList.remove("modal_curtain_show");
+            setTimeout(function () {
+                modal_curtain.style.display = "none";
+            }, 100);
+        }
+    };
+    const showToast = (message, type) => {
+        new Toast({message,type})
+    };
+
+    let elementTodo;
+
+    function addTodoList(event){
+        if (event.key === "Enter"){
+            let form = {
+                "title" : document.getElementById('add_list_title').value,
+                'user_id' : userId
+            };
+            axios.post('/todo_list/', form)
+                .then((response) => {
+                    let data = response.data;
+                    let divLists = document.getElementById('todo_lists');
+                    divLists.innerHTML += `<div class="mx-5 p-5 todo_list" id="todo_list_${data.id}">
+                                           <header class="d-flex">
+                                               <h4 >${data.title}</h4>
+                                               <button onclick="deleteTodoList(this)" class="btn btn-danger ml-2">
+                                                           <i class="fa fa-trash"></i>
+                                               </button>
+                                           </header>
+                                           <div class="todo-card">
+                                           </div>
+                                           <button data-modal="modal" onclick="openModalCreate(this)" class="btn">+</button>
+                                         </div>`;
+            })
+            .catch((err) => showToast(err, 'danger'));
+        }
+    }
+
+    function showModal(){
+        modal_curtain.style.display = "block";
+        setTimeout(function () {
+            modal_curtain.classList.add("modal_curtain_show");
+        }, 100);
+        window.addEventListener("click", closeModalAnywhere);
+    }
+
+    function openModalCreate(element) {
+        modalTodoId.value = '';
+        document.getElementById('todo_list_id').value = element.parentElement.id.substr(10, element.parentElement.id.length - 1);
+
+        showModal();
+    }
+
+    function openModalUpdate(element){
+        let id = element.previousElementSibling.value;
+        elementTodo = element;
+        modalTodoId.value = id;
+        axios.get('todo/'+id)
+            .then((response) => {
+                let data = response.data;
+                modalTodoDone.checked = data.done;
+                modalTodoDescription.value = data.description;
+                modalTodoListId.value = data.todo_list_id;
+                modalTodoTitle.value = data.title;
+            });
+
+        showModal();
+    }
+    function updateTodo(){
+        let form = {
+            'title' : modalTodoTitle.value,
+            'description' : modalTodoDescription.value,
+            'done' : modalTodoDone.checked,
+            'todo_list_id' : modalTodoListId.value
+        };
+
+        axios.post('/todo/'. id, form)
+            .then((response) => {
+                let data = response.data;
+                let elementList = document.getElementById('todo_list_' + document.getElementById('todo_list_id').value);
+                elementList.childNodes[3].innerHTML += `<button onclick="openModal(this)" class="todo d-block">${data.title}</button>`;
+            });
+    }
+
+    function addTodo(){
+        let form = {
+            'title' : modalTodoTitle.value,
+            'description' : modalTodoDescription.value,
+            'done' : modalTodoDone.checked,
+            'todo_list_id' : modalTodoListId.value,
+        };
+        if (modalTodoId.value){
+            form['id'] = modalTodoId.value;
+        }
+
+        axios.post('/todo/', form)
+            .then((response) => {
+                let data = response.data;
+                let elementList = document.getElementById('todo_list_' + document.getElementById('todo_list_id').value);
+                if (modalTodoId.value){
+                    elementTodo.textContent = data.title;
+                } else {
+                    elementList.childNodes[3].innerHTML += `<button onclick="openModal(this)" class="todo d-block">${data.title}</button>`;
+                }
+
+            });
+    }
+
+    function deleteTodoList(element){
+        let parentDivId = element.parentElement.parentElement;
+        axios.delete('/todo_list/' + parentDivId.id.substr(10, parentDivId.id.length - 1))
+            .then((response) => {
+                if (response.data.success){
+                    showToast('Lista excluida com sucesso', 'success');
+                    parentDivId.parentNode.removeChild(parentDivId);
+                } else {
+                    showToast('Erro ao excluir lista','danger');
+                }
+            })
+            .catch((err) => showToast(err, 'danger'));
+    }
+
+    function deleteTodo(){
+        axios.delete('/todo/' + modalTodoId.value)
+            .then((response) => {
+                if (response.data.success){
+                    showToast('Todo criado com sucesso', 'success');
+                    elementTodo.parentNode.removeChild(elementTodo);
+                } else {
+                    showToast('Todo excluido com sucesso', 'danger');
+                }
+            })
+            .catch((err) => showToast(err, 'danger'));
+    }
+
+    closeModal();
+
+</script>
+
+
+{% endblock %}
+

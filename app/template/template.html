@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>{% block title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" media="screen" href="/assets/css/template.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="/assets/css/Toast.css" />
+    {% block assets %}{% endblock %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.2/axios.min.js"></script>
+    <script src="/assets/js/Toast.js"></script>
+</head>
+<body>
+
+<header>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <strong>
+        <a class="navbar-brand" href="/">Faire</a>
+        </strong>
+            <div class="collapse navbar-collapse" id="navbarNavDropdown">
+            <ul class="navbar-nav">
+                    {% if user is defined %}
+                <li class="nav-item active">
+                    <a class="nav-link" href="/dashboard">Dashboard </a>
+                </li>
+                <li class="nav-item active">
+                        <a class="nav-link" href="/auth/logout">Logout</a>
+                </li>
+
+                {% else %}
+                <li class="nav-item active">
+                    <a class="nav-link" href="/auth/login">Login</a>
+                </li>
+                <li class="nav-item active">
+                    <a class="nav-link" href="/user">Cadastre-se</a>
+                </li>
+
+                {% endif %}
+            </ul>
+        </div>
+
+        {% if user is defined %}
+        <form class="form-inline">
+            <input class="form-control mr-sm-2" type="search" placeholder="Buscar" aria-label="Buscar">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Buscar</button>
+        </form>
+        {% endif %}
+    </nav>
+</header>
+
+<div class="main">
+    {% block body%}
+    {% endblock %}
+
+</div>
+
+<footer>
+    <div class="bg-dark text-white pt-2 page-footer footer">
+        <div class="container d-flex">
+            <div class="col-md-8 col-sm-6 col-xs-12 ">
+                <p class="copyright-text ">Faire ©
+                </p>
+            </div>
+
+            <div class="col-md-4 col-sm-6 col-xs-12 ">
+                    <a class="" href="/"><i class="fa fa-home"></i>Home</a>
+            </div>
+        </div>
+    </div>
+
+</footer>
+
+
+</body>
+</html>
