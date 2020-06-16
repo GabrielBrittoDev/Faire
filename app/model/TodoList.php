@@ -23,7 +23,7 @@ class TodoList
 
             return $stmt->fetchObject('TodoList');
         } else {
-            return $stmt->errorInfo();
+            return ['error' => 'Erro ao criar tarefa'];
         }
     }
 
@@ -57,21 +57,21 @@ class TodoList
         $stmt->bindValue(1, $userId, PDO::PARAM_INT);
         $stmt->execute();
         $todoLists = array();
-        $tempValue = -1;
+        $previousTodoListId = -1;
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
             $todos = [];
             $todoList = new TodoList();
             foreach ($row as $key => $value) {
                 if (substr($key, 0, 3) === 'tl_') {
-                    if ($tempValue !== $row['tl_id']) {
+                    if ($previousTodoListId !== $row['tl_id']) {
                         $key = str_replace('tl_', '', $key);
                         $todoList->$key = $value;
                     }
-                } else {
-                    $todos[$key] = $value;
+                    continue;
                 }
+                $todos[$key] = $value;
             }
-            if ($tempValue == $row['tl_id']) {
+            if ($previousTodoListId == $row['tl_id']) {
                 array_push(end($todoLists)->todos, $todos);
             } else {
                 if ($todos['id'] != null){
@@ -79,7 +79,7 @@ class TodoList
                 }
                 array_push($todoLists, $todoList);
             }
-            $tempValue = $row['tl_id'];
+            $previousTodoListId = $row['tl_id'];
         }
         return $todoLists;
     }

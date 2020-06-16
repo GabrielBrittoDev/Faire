@@ -26,8 +26,6 @@ class TodoListController extends BaseController
 
             if ($data = $this->todoList->create($data)){
                 echo json_encode($data);
-            } else {
-
             }
         }
 

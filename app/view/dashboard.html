@@ -5,15 +5,15 @@
 
 {% block body %}
 
-    <div class="text-center">
-        <h1><strong>+</strong> Adicionar Lista</h1>
-        <input type="hidden" id="user_id" value="{{user.id}}">
-        <label for="add_list_title">Lista:</label>
-        <input onkeypress="addTodoList(event)" type="text" id="add_list_title" name="add_list_title">
-    </div>
+<div class="text-center">
+    <h1><strong>+</strong> Adicionar Lista</h1>
+    <input type="hidden" id="user_id" value="{{user.id}}">
+    <label for="add_list_title">Lista:</label>
+    <input onkeypress="addTodoList(event)" type="text" id="add_list_title" name="add_list_title">
+</div>
 
 <div class="myWorkContent d-flex" id="todo_lists">
-{% for todoList in todoLists %}
+    {% for todoList in todoLists %}
     <div class="mx-5 p-5 todo_list" id="todo_list_{{todoList.id}}">
         <header class="d-flex">
             <h4>{{todoList.title}}</h4>
@@ -23,13 +23,12 @@
         </header>
         <div class="todo-card">
             {% for todo in todoList.todos %}
-            <input type="hidden" value="{{todo.id}}">
-            <button class="todo d-block" onclick="openModalUpdate(this)">{{todo.title}}</button>
+            <button class="todo d-block" id="todo_card_{{todo.id}}" onclick="openModalUpdate(this)">{{todo.title}}</button>
             {% endfor %}
         </div>
         <button data-modal="modal" onclick="openModalCreate(this)" class="btn">+</button>
     </div>
-{% endfor %}
+    {% endfor %}
 </div>
 
 <div id="modal" class="modal">
@@ -47,13 +46,15 @@
         <input type="hidden" id="todo_id" value="">
         <div class="form-group">
             <label for="todo_title">Titulo</label>
-            <input type="text" id="todo_title" class="form-input">
-            <label for="todo_done">Feito</label>
-            <input type="checkbox" id="todo_done">
+            <input type="text" id="todo_title" class="form-control">
         </div>
         <div class="form-group">
             <label for="todo_title">Descrição</label>
-            <textarea type="text" id="todo_description" class="form-input"></textarea>
+            <textarea type="text" id="todo_description" class="form-control"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="todo_done">Feito</label>
+            <input type="checkbox" id="todo_done">
         </div>
     </div>
     <div class="modal_footer">
@@ -61,12 +62,12 @@
             <i class="fa fa-trash"></i>
         </button>
         <div>
-        <button data-modal-close="modal" class="btn">
-            Cancelar
-        </button>
-        <button data-modal-close="modal" onclick="addTodo()" class="btn btn-primary">
-            Salvar
-        </button>
+            <button data-modal-close="modal" class="btn">
+                Cancelar
+            </button>
+            <button data-modal-close="modal" onclick="addTodo()" class="btn btn-primary">
+                Salvar
+            </button>
         </div>
     </div>
 </div>
@@ -92,6 +93,8 @@
                 modal_curtain.style.display = "none";
             }, 100);
         }
+
+
     };
     const showToast = (message, type) => {
         new Toast({message,type})
@@ -99,16 +102,25 @@
 
     let elementTodo;
 
+    function closeModalAnywhere(e) {
+        if (e.target === modal_curtain) {
+            closeModal();
+        }
+    }
+
     function addTodoList(event){
         if (event.key === "Enter"){
             let form = {
                 "title" : document.getElementById('add_list_title').value,
                 'user_id' : userId
             };
+            console.log(event);
+            event.target.value = '';
             axios.post('/todo_list/', form)
                 .then((response) => {
                     let data = response.data;
                     let divLists = document.getElementById('todo_lists');
+                    console.log(data);
                     divLists.innerHTML += `<div class="mx-5 p-5 todo_list" id="todo_list_${data.id}">
                                            <header class="d-flex">
                                                <h4 >${data.title}</h4>
@@ -136,18 +148,20 @@
     function openModalCreate(element) {
         modalTodoId.value = '';
         document.getElementById('todo_list_id').value = element.parentElement.id.substr(10, element.parentElement.id.length - 1);
-
+        modalTodoDone.checked = false;
+        modalTodoDescription.value = '';
+        modalTodoTitle.value = '';
         showModal();
     }
 
     function openModalUpdate(element){
-        let id = element.previousElementSibling.value;
+        let id = element.id.substr(10, element.id.length - 1);
         elementTodo = element;
         modalTodoId.value = id;
         axios.get('todo/'+id)
             .then((response) => {
                 let data = response.data;
-                modalTodoDone.checked = data.done;
+                modalTodoDone.checked = Boolean(Number(data.done));
                 modalTodoDescription.value = data.description;
                 modalTodoListId.value = data.todo_list_id;
                 modalTodoTitle.value = data.title;
@@ -167,7 +181,7 @@
             .then((response) => {
                 let data = response.data;
                 let elementList = document.getElementById('todo_list_' + document.getElementById('todo_list_id').value);
-                elementList.childNodes[3].innerHTML += `<button onclick="openModal(this)" class="todo d-block">${data.title}</button>`;
+                elementList.childNodes[3].innerHTML += `<button onclick="openModalUpdate(this)" id="todo_card_${data.id}" class="todo d-block">${data.title}</button>`;
             });
     }
 
@@ -189,7 +203,7 @@
                 if (modalTodoId.value){
                     elementTodo.textContent = data.title;
                 } else {
-                    elementList.childNodes[3].innerHTML += `<button onclick="openModal(this)" class="todo d-block">${data.title}</button>`;
+                    elementList.childNodes[3].innerHTML += `<button onclick="openModalUpdate(this)" id="todo_card_${data.id}" class="todo d-block">${data.title}</button>`;
                 }
 
             });
@@ -213,10 +227,10 @@
         axios.delete('/todo/' + modalTodoId.value)
             .then((response) => {
                 if (response.data.success){
-                    showToast('Todo criado com sucesso', 'success');
+                    showToast('Tarefa excluida com sucesso', 'success');
                     elementTodo.parentNode.removeChild(elementTodo);
                 } else {
-                    showToast('Todo excluido com sucesso', 'danger');
+                    showToast('Erro ao excluir tarefa', 'danger');
                 }
             })
             .catch((err) => showToast(err, 'danger'));

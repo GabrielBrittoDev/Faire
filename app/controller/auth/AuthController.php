@@ -24,7 +24,8 @@ class AuthController extends BaseController
     public function signIn($request)
     {
         if ($this->guest()) {
-            if ($response = $this->user->login($request)) {
+            $response = $this->user->login($request);
+            if (!isset($response['error'])) {
                 echo $this->renderView('dashboard.html', $response, 'dashboard');
             } else {
                 echo $this->renderView('auth/login.html', $response);

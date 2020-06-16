@@ -63,7 +63,7 @@ class Todo
         $stmt->bindValue(1, $id, \PDO::PARAM_INT);
         $stmt->execute();
 
-        return $stmt->fetchObject(Todo::class);
+        return $stmt->rowCount() > 0 ? $stmt->fetchObject(Todo::class) : ['error' => 'Erro ao carregar tarefa'] ;
     }
 
     public function destroy($id){

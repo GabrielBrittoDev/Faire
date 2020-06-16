@@ -1,11 +1,9 @@
 <?php
 
-
-
 $routes->get('/', 'HomeController@index');
 
 $routes->group('user', 'user', function () use ($routes){
-    $routes->get('/', 'UserController@create');
+    $routes->get('/create', 'UserController@create');
     $routes->post('/', 'UserController@store');
 });
 
@@ -23,9 +21,7 @@ $routes->group('todo', 'todo_list', function () use ($routes){
 
 $routes->group('todo_list','todo_list', function () use ($routes){
     $routes->post('/', 'TodoListController@store');
-    $routes->put('/list/{id}', 'TodoListController@update');
     $routes->delete('/{list_id}', 'TodoListController@destroy');
-    $routes->get('/', 'TodoListController@index');
 });
 
 $routes->get('/dashboard', 'DashboardController@index');

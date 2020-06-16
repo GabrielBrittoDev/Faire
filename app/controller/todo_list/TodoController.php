@@ -20,14 +20,13 @@ class TodoController extends BaseController{
                 echo json_encode($this->todo->update($data));
             } else {
                 echo json_encode($this->todo->create($data));
-
             }
         }
     }
 
     public function destroy($id){
         if ($this->loggedUser()){
-            $this->todo->destroy($id);
+            echo json_encode($this->todo->destroy($id));
         }
     }
 
@@ -35,8 +34,6 @@ class TodoController extends BaseController{
         if ($this->loggedUser()) {
             if ($data = $this->todo->show($id)) {
                 echo json_encode($data);
-            } else {
-
             }
         }
     }
