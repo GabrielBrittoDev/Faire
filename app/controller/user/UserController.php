@@ -23,14 +23,19 @@ class UserController extends \core\BaseController {
     }
 
     public function store($request){
+        $errors = array();
+
         if (!$this->user->isUniqueEmail($request['email'])){
-            $response['errors'] = 'Email já em uso';
-            echo $this->renderView('user/create.html',$response);
+            $errors[] = 'Email já em uso';
         }
 
         if ($request['confirm_password'] !== $request['password']){
-            $response['errors'] = 'Senhas não conferem';
-            echo $this->renderView('user/create.html',$response);
+            $errors[] = 'Senhas não conferem';
+        }
+
+        if (!empty($errors)){
+            echo $this->renderView('user/create.html',compact('errors'));
+            return;
         }
 
         $request['password'] = password_hash($request['password'], PASSWORD_BCRYPT);
