@@ -20,3 +20,28 @@ footer{
     background: #0c0c0c;
     color: #fff;
 }
+.github{
+    display: inline-block;
+    margin-bottom: 4px;
+}
+
+.github a:active,
+.github a:focus,
+.github a:hover{
+    color: #fff;
+    background-color: #333;
+}
+
+.github a{
+    background-color: #343A40;
+    color: rgba(216, 216, 216, 0.85);
+    font-size: 16px;
+    display: inline-block;
+    line-height: 44px;
+    width: 44px;
+    height: 44px;
+    text-align: center;
+    margin-right: 8px;
+    border-radius: 100%;
+    transition: all 0.2s linear;
+}
